@@ -1,0 +1,130 @@
+﻿    html, body {
+        height: 100%;
+    }
+
+    .menu-column {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    .menu {
+        background-color: #000000d9;
+        border-left: 1px solid;
+        border-bottom-left-radius: 20%;
+        border-top-left-radius: 20%;
+        color: white;
+        padding: 2em 2em 2em 2em;
+        text-align: center;
+    }
+
+    .participants{
+        height: 90%;
+    }
+
+    .neuro-field {
+        padding: 4em 0em;
+    }
+
+    .neuro-field__list-neurons__input-neuron {
+        list-style: none;
+        margin: auto;
+        display: table;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .center-screen{
+        padding: 5em;
+        text-align: center;
+    }
+
+    td{
+        width: 5em;
+        height: 5em;
+    }
+
+    .player-neuron {
+        display: table;
+        text-align: center;
+        margin: 5em auto;
+    }
+
+    .neuro-field .circle {
+        margin: auto;
+        border: 1px solid #80808059;
+        border-radius: 200px;
+        color: black;
+        height: 75px;
+        font-weight: bold;
+        width: 75px;
+        display: table;
+        box-shadow: 3px 3px 5px gray;
+        transition: 0.5s;
+    }
+
+     .menu .circle {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        float: left;
+     }
+
+    .userState {
+        width: 100%;
+        overflow: hidden;
+        padding: 5px;
+    }
+
+    .userNames{
+        float: right
+    }
+
+    .circle p {
+        vertical-align: middle;
+        display: table-cell;
+    }
+
+    .neuro-field .circle:hover {
+        transform: scale(1.15);
+    }
+
+    .weight-text{
+        color: gray;
+    }
+
+    .weight {
+        width: 2em;
+        border: none;
+        background: none;
+        text-align: center;
+        color: gray;
+    }
+
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+
+    .answer{
+        font-size: 100px;
+    }
+
+    @media (max-width: 767px) {
+        .menu {
+            border-bottom-left-radius: 0%;
+            border-top-left-radius: 20%;
+            border-top-right-radius: 20%;
+        }
+
+        .participants{
+            height: auto;
+            padding-bottom: 15px;
+        }
+    }
