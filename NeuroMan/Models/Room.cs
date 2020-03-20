@@ -12,19 +12,14 @@ namespace NeuroMan.Models
 
         private int maxUsers = 5;
 
-        private Dictionary<string, Participant> participants = new Dictionary<string, Participant>();
-        private Dictionary<string, Participant> archive = new Dictionary<string, Participant>();
+        private readonly Dictionary<string, Participant> participants = new Dictionary<string, Participant>();
 
-        private List<double> inputValues = new List<double>();
-        private List<double> outputValues = new List<double>();
-
-        public int answer;
+        public NeuralNetwork neuralNetwork;
 
         public Room(string name)
         {
-            this.Name = name;
-            GenerateInput(9);
-            outputValues = new List<double>(9) { 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            Name = name;
+            neuralNetwork = new NeuralNetwork();
         }
 
         public int CountOfUsers()
@@ -37,80 +32,49 @@ namespace NeuroMan.Models
             return CountOfUsers() >= maxUsers;
         }
 
-        public void Join(string ip)
+        public void Join(string name, string ip)
         {
-            if (archive.Any(p => p.Value.ip == ip) && !participants.Any(p => p.Value.ip == ip))
-                participants.Add(ip, archive[ip]);
-            else if (!participants.Any(p => p.Value.ip == ip))
-            {
-                archive.Add(ip, new Participant(ip, new List<double>(9) { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new List<double>(9) { 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
-                participants.Add(ip, archive[ip]);
-            }
-            
+            if (!participants.Any(p => p.Value.Name == name))
+                participants.Add(name, new Participant(name, ip, new List<double>(9) { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, new List<double>(9) { 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
         }
 
-        public void Unjoin(string ip)
+        public void Unjoin(string name)
         {
-            if (participants.Any(p => p.Value.ip == ip))
-                participants.Remove(ip);
+            if (participants.Any(p => p.Value.Name == name))
+            {
+                participants[name].IsReady = false;
+                participants.Remove(name);
+                neuralNetwork.RemoveWeights(name);
+            }      
         }
 
-        public bool SetReady(string ip)
+        public bool ChangeReadiness(string name)
         {
-            if (participants.Any(p => p.Value.ip == ip))
+            if (participants.Any(p => p.Value.Name == name))
             {
-                participants[ip].isReady = !participants[ip].isReady;
+                participants[name].IsReady = !participants[name].IsReady;
             }
 
-            if (participants.All(p => p.Value.isReady))
+            if (participants.All(p => p.Value.IsReady))
             {
-                CalculateOutput();
+                neuralNetwork.CalculateOutput();
                 return true;
             }
+
             else return false;
         }
 
-        public List<double> GetInputValues()
-        {
-            return inputValues;
-        }
-
-        public int GetOutputs()
-        {
-            return outputValues.Count;
-        }
         public Dictionary<string, Participant> GetParticipants()
         {
             return participants;
         }
 
-        public void GenerateInput(int number)
+        public bool ContainsParticipant(string name)
         {
-            inputValues.Clear();
-            Random rand = new Random();
-            for(int i = 0; i < number; i++)
-            {
-                inputValues.Add(rand.Next(0,2));
-            }
-        }
+            foreach(Participant p in participants.Values)
+                if (p.Name == name) return true;
 
-        private void CalculateOutput()
-        {
-            foreach(KeyValuePair<string, Participant> pair in participants)
-            {
-                double MainValue = 0;
-                for(int j = 0; j < inputValues.Count; j++)
-                {
-                    MainValue += inputValues[j] * pair.Value.inputWeights[j];
-                }
-
-                for(int j = 0; j < outputValues.Count; j++)
-                {
-                    outputValues[j] = MainValue * pair.Value.outputWeights[j];
-                }
-            }
-
-            answer = outputValues.IndexOf(outputValues.Max());
+            return false;
         }
     }
 }

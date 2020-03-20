@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,19 +10,15 @@ namespace NeuroMan.Services
 {
     public class RoomService
     {
-        Dictionary<string, Room> rooms = new Dictionary<string, Room>();
-        private Dictionary<string, Participant> archive = new Dictionary<string, Participant>();
+        readonly Dictionary<string, Room> rooms = new Dictionary<string, Room>();
 
-        public string FindRoom()
+        public string FindFreeRoom(string userName)
         {
             foreach (KeyValuePair<string, Room> room in rooms)
-            {
-                if (!room.Value.IsFull())
-                {
+                if (!room.Value.IsFull() && !room.Value.ContainsParticipant(userName))
                     return room.Key;
-                }
-            }
-            return null;
+
+            return AddRoom();
         }
 
         public Room GetRoom(string name)
@@ -31,6 +28,8 @@ namespace NeuroMan.Services
             return null;
         }
 
+        public Room GetRoomByParticipant(string name) => rooms.Values.ToList().Find(r => r.ContainsParticipant(name));
+
         public string AddRoom(string name = null)
         {
             string _name = name;
@@ -39,15 +38,20 @@ namespace NeuroMan.Services
             return _name;
         }
 
-        private string GenerateRoomName(int lenght)
+        private string GenerateRoomName(int length)
         {
-            Random r = new Random();
-            StringBuilder s = new StringBuilder();
-            for (int i = 0; i < lenght; i++)
-            {
-                s.Append(r.Next(0, 255));
-            }
-            return s.ToString();
+            string path = Path.GetRandomFileName();
+            path = path.Replace(".", ""); // Remove period.
+            return path.Substring(0, length);  // Return 8 character string
+        }
+
+        public bool ContainsRoom(string name) => rooms.ContainsKey(name);
+
+        public void DeleteFreeRooms()
+        {
+            foreach(KeyValuePair<string, Room> room in rooms)
+                if(room.Value.GetParticipants().Count <= 0)
+                    rooms.Remove(room.Key);
         }
     }
 }

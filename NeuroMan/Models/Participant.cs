@@ -7,20 +7,15 @@ namespace NeuroMan.Models
 {
     public class Participant
     {
-        public Participant(string ip, List<double> inputWeights, List<double> outputWeights)
+        public Participant(string name, string ip, List<double> inputWeights, List<double> outputWeights)
         {
-            this.ip = ip;
-            this.inputWeights = inputWeights;
-            this.outputWeights = outputWeights;
+            Name = name;
+            Ip = ip;
+            IsReady = false;
         }
 
-        public string ip { get; set; }
-
-        public bool isReady { get; set; }
-
-
-        public List<double> inputWeights = new List<double>();
-
-        public List<double> outputWeights = new List<double>();
+        public string Name { get; set; }
+        public string Ip { get; set; }
+        public bool IsReady { get; set; }
     }
 }

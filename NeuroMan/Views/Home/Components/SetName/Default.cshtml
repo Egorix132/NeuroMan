@@ -1,0 +1,19 @@
+﻿@model (string name, string room)
+<div class="overlay">
+    <div class="window">
+        <form>
+            <label>Name</label>
+            <div>
+                <input id="inputName" type="text" class="input" placeholder="Enter your nickname" value="@Model.name"/>
+            </div>
+            <label>Room</label>
+            <div>
+                <input id="inputRoom" type="text" class="input" placeholder="Room name" value="@Model.room"/>
+            </div>
+            <div id="joinButton" class="btn btn-success">
+                Join
+            </div>
+        </form>
+    </div>
+</div>
+<script src="~/js/Auth.js"></script>

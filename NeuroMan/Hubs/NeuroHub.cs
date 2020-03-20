@@ -10,7 +10,7 @@ namespace SignalRChat.Hubs
 {
     public class NeuroHub : Hub
     {
-        RoomService roomService;
+        private readonly RoomService roomService;
         public NeuroHub(RoomService roomService)
         {
             this.roomService = roomService;
@@ -28,53 +28,58 @@ namespace SignalRChat.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task AddToGroup(string groupName)
+        private async Task AddToGroup(string groupName)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
             Room room = roomService.GetRoom(groupName);
-            room.Join(Context.GetHttpContext().Connection.RemoteIpAddress.ToString());
-            List<Participant> participants = room.GetParticipants().Values.ToList();
-            await Clients.Groups(groupName).SendAsync("UpdateUsersStates", participants);
+            room.Join(Context.GetHttpContext().Request.Cookies["name"], Context.GetHttpContext().Connection.RemoteIpAddress.ToString());
+            await Clients.Caller.SendAsync("SetCase", room.neuralNetwork.GetInputValues());
+            await Clients.Groups(groupName).SendAsync("UpdateUsersStates", room.GetParticipants().Values.ToList());
         }
 
-        public async Task RemoveFromGroup(string groupName)
+        private async Task RemoveFromGroup(string groupName)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
 
             Room room = roomService.GetRoom(groupName);
-            room.Unjoin(Context.GetHttpContext().Connection.RemoteIpAddress.ToString());
-            await Clients.Groups(groupName).SendAsync("UpdateUsersStates", room.GetParticipants().Values);
+            room.Unjoin(Context.GetHttpContext().Request.Cookies["name"]);
+            roomService.DeleteFreeRooms();
+            await Clients.Groups(groupName).SendAsync("UpdateUsersStates", room.GetParticipants().Values.ToList());
         }
 
-        public async Task SendWeights(List<double> inputWeights, List<double> outputWeights)
+        public async Task SetWeights(bool readiness, List<double> inputWeights, List<double> outputWeights)
         {
             Room room = roomService.GetRoom(Context.GetHttpContext().Request.Cookies["room"]);
-            Participant caller = room.GetParticipants()[Context.GetHttpContext().Connection.RemoteIpAddress.ToString()];
-            caller.inputWeights = inputWeights;
-            caller.outputWeights = outputWeights;
-            bool already = room.SetReady(Context.GetHttpContext().Connection.RemoteIpAddress.ToString());
+
+            if (readiness)
+                room.neuralNetwork.SetWeights(Context.GetHttpContext().Request.Cookies["name"], inputWeights, outputWeights);
+
+            bool already = room.ChangeReadiness(Context.GetHttpContext().Request.Cookies["name"]);
+
             if (already) await CalculateOutput(room);
-            await Clients.Groups(room.Name).SendAsync("UpdateUsersStates", room.GetParticipants().Values);
+
+
+            await Clients.Groups(room.Name).SendAsync("UpdateUsersStates", room.GetParticipants().Values.ToList());
         }
 
-        public async Task LoadWeights()
+        private async Task SendCase(Room room)
         {
-            Room room = roomService.GetRoom(Context.GetHttpContext().Request.Cookies["room"]);
-            Participant caller = room.GetParticipants()[Context.GetHttpContext().Connection.RemoteIpAddress.ToString()];
-
-            await Clients.Caller.SendAsync("UpdateWeigths", caller.inputWeights, caller.outputWeights);
+            await Clients.Groups(room.Name).SendAsync("SetCase", room.neuralNetwork.GetInputValues());
         }
 
         private async Task CalculateOutput(Room room)
         {
             foreach(Participant p in room.GetParticipants().Values)
             {
-                p.isReady = false;
+                p.IsReady = false;
             }
 
-            await Clients.Groups(room.Name).SendAsync("ShowAnswer", room.answer);
-            await Clients.Groups(room.Name).SendAsync("UpdateUsersStates", room.GetParticipants().Values);
+            room.neuralNetwork.GenerateInput();
+            await SendCase(room);
+
+            await Clients.Groups(room.Name).SendAsync("ShowAnswer", room.neuralNetwork.Answer);
+            await Clients.Groups(room.Name).SendAsync("UpdateUsersStates", room.GetParticipants().Values.ToList());
         }
     }
 }

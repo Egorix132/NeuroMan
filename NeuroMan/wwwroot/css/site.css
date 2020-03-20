@@ -17,12 +17,29 @@
         text-align: center;
     }
 
+    .roomName {
+        margin-bottom: 0.5em;
+        border-bottom: 1px solid grey;
+    }
+
+    .roomNameText{
+        margin-bottom: 0;
+        display: inline-block;
+    }
+
+    .re-login {
+        font-size: 14px;
+        margin: 10px;
+        padding: 0.2em 0.3em;
+        display: inline-block;
+    }
+
     .participants{
-        height: 90%;
+        height: 85%;
     }
 
     .neuro-field {
-        padding: 4em 0em;
+        padding: 2em 0em;
     }
 
     .neuro-field__list-neurons__input-neuron {
@@ -34,7 +51,7 @@
     }
 
     .center-screen{
-        padding: 5em;
+        padding: 3.5em;
         text-align: center;
     }
 
@@ -46,7 +63,11 @@
     .player-neuron {
         display: table;
         text-align: center;
-        margin: 5em auto;
+        margin: auto;
+    }
+
+    .answer-col {
+        margin: auto 0;
     }
 
     .neuro-field .circle {
@@ -59,7 +80,6 @@
         width: 75px;
         display: table;
         box-shadow: 3px 3px 5px gray;
-        transition: 0.5s;
     }
 
      .menu .circle {
@@ -82,10 +102,6 @@
     .circle p {
         vertical-align: middle;
         display: table-cell;
-    }
-
-    .neuro-field .circle:hover {
-        transform: scale(1.15);
     }
 
     .weight-text{
@@ -116,6 +132,46 @@
         font-size: 100px;
     }
 
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 1);
+        z-index: 100;
+        text-align: center;
+    }
+
+    .window {
+        display: inline-block;
+        background-color: black;
+        margin-top: 15%;
+        padding: 20px;
+        border-radius: 20px;
+        color: white;
+    }
+
+    .input {
+        margin-bottom: .5em;
+    }
+
+    .outputUpWeight, .inputUpWeight {
+        left: 10%;
+        right: 8%;
+        top: 0%;
+        bottom: 70%;
+        position: absolute;
+    }
+
+    .outputDownWeight, .inputDownWeight {
+        left: 10%;
+        right: 8%;
+        top: 30%;
+        bottom: 45%;
+        position: absolute;
+    }
+
     @media (max-width: 767px) {
         .menu {
             border-bottom-left-radius: 0%;
@@ -128,3 +184,5 @@
             padding-bottom: 15px;
         }
     }
+
+    

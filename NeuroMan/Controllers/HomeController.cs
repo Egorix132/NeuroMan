@@ -15,7 +15,7 @@ namespace NeuroMan.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        RoomService roomService;
+        private readonly RoomService roomService;
 
         
         public HomeController(ILogger<HomeController> logger, RoomService roomService)
@@ -26,15 +26,9 @@ namespace NeuroMan.Controllers
 
         [Route("Home/Index")]
         [Route("")]
-        public IActionResult Index(int? id)
-        {
-            var room = roomService.GetRoom((string)HttpContext.Items["room"]);
-            room.Join(HttpContext.Connection.RemoteIpAddress.ToString());
-            ViewBag.inputValues = room.GetInputValues();
-            ViewBag.countOutputs = room.GetOutputs();
-            ViewBag.users = room.GetParticipants().Values;
-            ViewBag.user = room.GetParticipants()[HttpContext.Connection.RemoteIpAddress.ToString()];
-            return View();
+        public IActionResult Index()
+        {  
+            return View(CheckAuth());
         }
 
         public IActionResult Privacy()
@@ -46,6 +40,28 @@ namespace NeuroMan.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        private bool CheckAuth()
+        {
+            bool auth = HttpContext.Request.Cookies.ContainsKey("name") && HttpContext.Request.Cookies.ContainsKey("room");
+            if (auth)
+            {
+                string userName = HttpContext.Request.Cookies["name"];
+                string roomName = HttpContext.Request.Cookies["room"];
+
+                if (roomService.ContainsRoom(roomName))
+                {
+                    Room room = roomService.GetRoom(roomName);
+
+                    if (room.IsFull() || (room.ContainsParticipant(userName) && room.GetParticipants()[userName].Ip != HttpContext.Connection.RemoteIpAddress.ToString()))
+                        auth = false;
+                }
+                else
+                    roomService.AddRoom(roomName);
+            }
+
+            return auth;
         }
     }
 }

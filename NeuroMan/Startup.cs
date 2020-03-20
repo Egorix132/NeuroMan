@@ -29,8 +29,6 @@ namespace NeuroMan
         {
             services.AddControllersWithViews();
             services.AddSignalR();
-            services.AddDistributedMemoryCache();
-            services.AddSession();
             services.AddSingleton<RoomService>();
         }
 
@@ -47,17 +45,12 @@ namespace NeuroMan
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
             app.UseStatusCodePages();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            app.UseSession();
-
-            app.UseMiddleware<RoomMiddleware>();
             
             app.UseRouting();
-
-            app.UseAuthorization();
             
             app.UseEndpoints(endpoints =>
             {
